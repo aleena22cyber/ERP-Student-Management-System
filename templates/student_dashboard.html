@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <p class="eyebrow">STUDENT PORTAL</p>
+        <h1>My Attendance</h1>
+        <p class="muted">
+            {{ session.get('name') }} · Enrollment No. {{ session.get('enrollment_no') }}
+            · Section {{ session.get('section') }}
+        </p>
+    </div>
+</div>
+
+<div class="overall-card">
+    <div>
+        <span class="muted">OVERALL ATTENDANCE</span>
+        <div class="big-number">{{ overall_percent }}%</div>
+    </div>
+    <div class="target">
+        <b>{{ target|int }}%</b>
+        <span>Required Target</span>
+    </div>
+</div>
+
+{% if notifications %}
+<div class="notification-panel">
+    <div class="panel-head">
+        <h2>Notifications</h2>
+        <span class="badge warning">{{ notifications|length }}</span>
+    </div>
+
+    {% for n in notifications %}
+    <div class="notification">
+        <div class="bell">!</div>
+        <div>
+            {% if 'Assignment Reminder:' in n.message %}
+                <b>Assignment Reminder</b>
+            {% elif 'Absence Alert:' in n.message %}
+                <b>Class Absence Alert</b>
+            {% elif 'Fee' in n.message or 'fee' in n.message or 'Payment Recorded:' in n.message or 'Unpaid Fee Alert:' in n.message %}
+                <b>Fee Notification</b>
+            {% else %}
+                <b>Attendance Alert</b>
+            {% endif %}
+            <p>{{ n.message }}</p>
+            <small>{{ n.created_at }}</small>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% set absence_notifications = [] %}
+{% for n in notifications %}
+    {% if 'Absence Alert:' in n.message %}
+        {% set _ = absence_notifications.append(n) %}
+    {% endif %}
+{% endfor %}
+{% if absence_notifications %}
+<div id="absenceAlertModal" class="assignment-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="absenceAlertTitle">
+    <div class="assignment-modal">
+        <button type="button" class="assignment-modal-close" aria-label="Close absence alert" onclick="document.getElementById('absenceAlertModal').style.display='none'">&times;</button>
+        <div class="assignment-modal-icon">!</div>
+        <p class="eyebrow">ATTENDANCE NOTICE</p>
+        <h2 id="absenceAlertTitle">You have been marked absent</h2>
+        <p class="muted">Please review the details below. If you think this is incorrect, contact your faculty.</p>
+        {% for n in absence_notifications %}
+        <div class="assignment-modal-item">
+            <b>Class Absence Alert</b>
+            <p>{{ n.message }}</p>
+            <small>{{ n.created_at }}</small>
+        </div>
+        {% endfor %}
+        <button type="button" class="primary button" onclick="document.getElementById('absenceAlertModal').style.display='none'">Got it</button>
+    </div>
+</div>
+<script>
+document.addEventListener("keydown", function(event) {
+    if (event.key === "Escape") {
+        const modal = document.getElementById("absenceAlertModal");
+        if (modal) modal.style.display = "none";
+    }
+});
+</script>
+{% endif %}
+
+{% set fee_notifications = [] %}
+{% for n in notifications %}
+    {% if 'Fee' in n.message or 'fee' in n.message or 'Payment Recorded:' in n.message or 'Unpaid Fee Alert:' in n.message %}
+        {% set _ = fee_notifications.append(n) %}
+    {% endif %}
+{% endfor %}
+{% if fee_notifications %}
+<div id="feeReminderModal" class="assignment-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="feeReminderTitle">
+    <div class="assignment-modal">
+        <button type="button" class="assignment-modal-close" aria-label="Close fee alert" onclick="document.getElementById('feeReminderModal').style.display='none'">&times;</button>
+        <div class="assignment-modal-icon">₹</div>
+        <p class="eyebrow">FEE NOTIFICATION</p>
+        <h2 id="feeReminderTitle">Fee account update</h2>
+        <p class="muted">Please review your fee status and payment deadline.</p>
+        {% for n in fee_notifications %}
+        <div class="assignment-modal-item"><b>Fee Notification</b><p>{{ n.message }}</p><small>{{ n.created_at }}</small></div>
+        {% endfor %}
+        <a class="primary button" href="{{ url_for('student_fees') }}">View My Fees</a>
+        <button type="button" class="button" onclick="document.getElementById('feeReminderModal').style.display='none'">Got it</button>
+    </div>
+</div>
+{% endif %}
+
+{% set assignment_notifications = [] %}
+{% for n in notifications %}
+    {% if 'Assignment Reminder:' in n.message %}
+        {% set _ = assignment_notifications.append(n) %}
+    {% endif %}
+{% endfor %}
+{% if assignment_notifications %}
+<div id="assignmentReminderModal" class="assignment-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="assignmentReminderTitle">
+    <div class="assignment-modal">
+        <button type="button" class="assignment-modal-close" aria-label="Close reminder" onclick="document.getElementById('assignmentReminderModal').style.display='none'">&times;</button>
+        <div class="assignment-modal-icon">!</div>
+        <p class="eyebrow">IMPORTANT REMINDER</p>
+        <h2 id="assignmentReminderTitle">Assignment deadline coming up</h2>
+        <p class="muted">You have an assignment due in 5 days. Please make sure you submit it on time.</p>
+        {% for n in assignment_notifications %}
+        <div class="assignment-modal-item">
+            <b>Assignment Reminder</b>
+            <p>{{ n.message }}</p>
+        </div>
+        {% endfor %}
+        <button type="button" class="primary button" onclick="document.getElementById('assignmentReminderModal').style.display='none'">Got it</button>
+    </div>
+</div>
+<script>
+document.addEventListener("keydown", function(event) {
+    if (event.key === "Escape") {
+        const modal = document.getElementById("assignmentReminderModal");
+        if (modal) modal.style.display = "none";
+    }
+});
+</script>
+{% endif %}
+
+<h2 class="section-title">Subject-wise Attendance</h2>
+
+<div class="cards">
+{% for c in cards %}
+    <div class="attendance-card">
+        <div class="card-top">
+            <div>
+                <b>{{ c.code }}</b>
+                <div>{{ c.name }}</div>
+            </div>
+
+            {% if c.percent >= target %}
+                <span class="badge safe">SAFE</span>
+            {% else %}
+                <span class="badge warning">WARNING</span>
+            {% endif %}
+        </div>
+
+        <div class="percent">{{ c.percent }}%</div>
+        <p>{{ c.attended }} of {{ c.total }} classes attended · target {{ target|int }}%</p>
+
+        <div class="bar">
+            <span style="width: {{ [c.percent, 100]|min }}%"></span>
+        </div>
+
+        <a href="{{ url_for('student_history', code=c.code) }}">
+            View class-by-class history →
+        </a>
+    </div>
+{% endfor %}
+</div>
+{% endblock %}

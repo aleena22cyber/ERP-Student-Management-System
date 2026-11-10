@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head"><div><p class="eyebrow">STUDENT PORTAL</p><h1>My Fees</h1><p class="muted">View assigned fees, deadlines, payments, and outstanding balances.</p></div></div>
+{% if fees %}<div class="panel"><table><thead><tr><th>Fee</th><th>Total</th><th>Paid</th><th>Balance</th><th>Due date</th><th>Status</th></tr></thead><tbody>
+{% for f in fees %}<tr><td>{{ f.title }}</td><td>Rs. {{ '%.2f'|format(f.amount) }}</td><td>Rs. {{ '%.2f'|format(f.amount_paid) }}</td><td>Rs. {{ '%.2f'|format(f.amount-f.amount_paid) }}</td><td>{{ f.due_date }}</td><td>{% if f.status == 'PAID' %}<span class="badge safe">PAID</span>{% elif f.due_date < today %}<span class="badge danger">OVERDUE</span>{% else %}<span class="badge warning">{{ f.status }}</span>{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>{% else %}<div class="panel"><p class="muted">No fees have been assigned to you yet.</p></div>{% endif %}
+{% endblock %}

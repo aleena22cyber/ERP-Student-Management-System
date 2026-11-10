@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head"><div><p class="eyebrow">TEACHER PORTAL</p><h1>Fee Management</h1><p class="muted">Assign fees, record payments, and notify students.</p></div></div>
+<div class="panel">
+<div class="panel-head"><h2>Assign a new fee</h2></div>
+<form method="post">
+<label for="student_id">Student</label>
+<select id="student_id" name="student_id" required><option value="">Select student</option>{% for s in students %}<option value="{{ s.id }}">{{ s.enrollment_no }} — {{ s.name }}{% if s.email %} ({{ s.email }}){% endif %}</option>{% endfor %}</select>
+<label for="title">Fee name</label><input id="title" name="title" required placeholder="e.g. Semester Tuition Fee">
+<label for="amount">Amount (Rs.)</label><input id="amount" name="amount" type="number" min="0.01" step="0.01" required>
+<label for="due_date">Payment deadline</label><input id="due_date" name="due_date" type="date" required>
+<button class="primary button" type="submit">Assign Fee & Notify Student</button>
+</form></div>
+<div class="panel"><div class="panel-head"><h2>Fee records</h2></div>
+{% if fees %}<table><thead><tr><th>Student</th><th>Fee</th><th>Amount</th><th>Paid</th><th>Balance</th><th>Due date</th><th>Status</th><th>Record payment</th></tr></thead><tbody>
+{% for f in fees %}<tr><td>{{ f.student_name }}<br><small>{{ f.enrollment_no }}</small></td><td>{{ f.title }}</td><td>Rs. {{ '%.2f'|format(f.amount) }}</td><td>Rs. {{ '%.2f'|format(f.amount_paid) }}</td><td>Rs. {{ '%.2f'|format(f.amount-f.amount_paid) }}</td><td>{{ f.due_date }}</td><td>{{ f.status }}{% if f.status != 'PAID' and f.due_date < today|default('0000-00-00') %} · OVERDUE{% endif %}</td><td>
+{% if f.status != 'PAID' %}<form method="post" action="{{ url_for('record_fee_payment', fee_id=f.id) }}"><input name="amount" type="number" min="0.01" max="{{ '%.2f'|format(f.amount-f.amount_paid) }}" step="0.01" placeholder="Amount paid" required><input name="method" placeholder="Method (UPI/cash)"><input name="reference" placeholder="Reference (optional)"><button type="submit">Record</button></form>{% else %}Paid{% endif %}
+</td></tr>{% endfor %}</tbody></table>{% else %}<p class="muted">No fees assigned yet.</p>{% endif %}
+</div>
+{% endblock %}

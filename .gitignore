@@ -1,0 +1,10 @@
+# Secrets
+.env
+
+# Python environment
+venv/
+__pycache__/
+*.pyc
+
+# Private student database
+attendance.db

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <p class="eyebrow">ATTENDANCE HISTORY</p>
+        <h1>{{ course.code }} — {{ course.name }}</h1>
+    </div>
+    <a class="secondary button" href="{{ url_for('student_dashboard') }}">← Back</a>
+</div>
+
+<div class="panel">
+    <table>
+        <thead><tr><th>Session</th><th>Date</th><th>Status</th></tr></thead>
+        <tbody>
+        {% for record in records %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ record.attendance_date }}</td>
+            <td>
+                {% if record.status == 'Present' %}
+                    <span class="badge safe">Attended</span>
+                {% else %}
+                    <span class="badge danger">Missed</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="3">No attendance records yet.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

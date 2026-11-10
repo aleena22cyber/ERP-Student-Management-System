@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <p class="eyebrow">TEACHER PORTAL</p>
+        <h1>Mark / Update Attendance</h1>
+        <p class="muted">Select a subject and date, then mark each student.</p>
+    </div>
+</div>
+
+<div class="panel filters">
+    <form method="GET">
+        <div>
+            <label>Subject</label>
+            <select name="course_id">
+                {% for c in courses %}
+                    <option value="{{ c.id }}" {% if course and c.id == course.id %}selected{% endif %}>
+                        {{ c.code }} — {{ c.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label>Date</label>
+            <input type="date" name="attendance_date" value="{{ attendance_date }}">
+        </div>
+        <button class="primary" type="submit">Load</button>
+    </form>
+</div>
+
+{% if course %}
+<div class="panel">
+    <div class="panel-head">
+        <h2>{{ course.code }} — {{ course.name }}</h2>
+        <span>{{ attendance_date }}</span>
+    </div>
+
+    <form method="POST">
+        <input type="hidden" name="course_id" value="{{ course.id }}">
+        <input type="hidden" name="attendance_date" value="{{ attendance_date }}">
+
+        <div class="quick-actions">
+            <button type="button" class="secondary" onclick="markAll('Present')">Mark All Present</button>
+            <button type="button" class="secondary" onclick="markAll('Absent')">Mark All Absent</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr><th>S.No.</th><th>Enrollment No.</th><th>Student Name</th><th>Attendance</th></tr>
+            </thead>
+            <tbody>
+            {% for student in students %}
+                {% set current = existing.get(student.id, 'Present') %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ student.enrollment_no }}</td>
+                    <td><b>{{ student.name }}</b></td>
+                    <td>
+                        <label class="radio">
+                            <input type="radio" name="status_{{ student.id }}" value="Present"
+                            {% if current == 'Present' %}checked{% endif %}>
+                            Present
+                        </label>
+                        <label class="radio">
+                            <input type="radio" name="status_{{ student.id }}" value="Absent"
+                            {% if current == 'Absent' %}checked{% endif %}>
+                            Absent
+                        </label>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <button class="primary save-btn" type="submit">Save Attendance</button>
+    </form>
+</div>
+{% endif %}
+
+<script>
+function markAll(value) {
+    document.querySelectorAll('input[type="radio"][value="' + value + '"]').forEach(function(r) {
+        r.checked = true;
+    });
+}
+</script>
+{% endblock %}

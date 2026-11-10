@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <p class="eyebrow">TEACHER PORTAL</p>
+        <h1>Section {{ session.get('section') }} Attendance</h1>
+<p><a href="{{ url_for('manage_contacts') }}">Student Contact Details (email / phone)</a></p>
+        <p><a href="{{ url_for('manage_assignments') }}">Create assignments and set due dates →</a></p>
+
+        <p class="muted">Students imported from the Excel list provided for the project.</p>
+    </div>
+    <a class="primary button" href="{{ url_for('manage_attendance') }}">+ Mark Attendance</a>
+</div>
+
+<div class="stat-grid">
+    <div class="stat"><b>{{ students|length }}</b><span>Students</span></div>
+    <div class="stat"><b>{{ courses|length }}</b><span>Subjects</span></div>
+    <div class="stat"><b>75%</b><span>Required Target</span></div>
+</div>
+
+<div class="panel">
+    <div class="panel-head">
+        <h2>Students in Section {{ session.get('section') }}</h2>
+        <span class="muted">Overall attendance</span>
+    </div>
+    <table>
+        <thead>
+            <tr><th>S.No.</th><th>Enrollment No.</th><th>Student Name</th><th>Attendance</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+        {% for student in students %}
+            {% set p = summaries[student.id] %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ student.enrollment_no }}</td>
+                <td><b>{{ student.name }}</b></td>
+                <td>{{ p }}%</td>
+                <td>
+                    {% if p >= 75 %}
+                        <span class="badge safe">SAFE</span>
+                    {% else %}
+                        <span class="badge warning">WARNING</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="panel">
+    <div class="panel-head"><h2>Subjects</h2></div>
+    <div class="course-list">
+        {% for course in courses %}
+        <div class="course-row">
+            <div><b>{{ course.code }}</b> — {{ course.name }}</div>
+            <a href="{{ url_for('manage_attendance', course_id=course.id) }}">Update attendance →</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

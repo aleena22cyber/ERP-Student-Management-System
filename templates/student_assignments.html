@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <p class="eyebrow">STUDENT PORTAL</p>
+        <h1>Assignments</h1>
+        <p class="muted">View your assignments, subjects, instructions, and deadlines.</p>
+    </div>
+</div>
+
+{% if assignments %}
+<div class="panel">
+    <div class="panel-head">
+        <h2>My Assignments</h2>
+        <span class="muted">{{ assignments|length }} total</span>
+    </div>
+    <div class="assignment-list">
+    {% for a in assignments %}
+        <div class="student-assignment">
+            <div class="assignment-info">
+                <h3>{{ a.title }}</h3>
+                <p class="muted">{{ a.code }} — {{ a.name }}</p>
+                {% if a.description %}
+                <p>{{ a.description }}</p>
+                {% endif %}
+            </div>
+            <div class="assignment-deadline">
+                <b>Due: {{ a.due_date }}</b>
+                {% if a.days_left is not none %}
+                    {% if a.days_left < 0 %}
+                        <span class="badge danger">Overdue</span>
+                    {% elif a.days_left == 0 %}
+                        <span class="badge warning">Due today</span>
+                    {% elif a.days_left == 5 %}
+                        <span class="badge warning">Due in 5 days · Reminder</span>
+                    {% else %}
+                        <span class="badge safe">{{ a.days_left }} days left</span>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+</div>
+{% else %}
+<div class="panel">
+    <div class="panel-head"><h2>My Assignments</h2></div>
+    <div style="padding:20px">
+        <p class="muted">No assignments have been added by your teacher yet.</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

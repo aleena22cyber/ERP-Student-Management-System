@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <p class="eyebrow">TEACHER PORTAL</p>
+        <h1>Assignments & Reminders</h1>
+        <p class="muted">Add an assignment and its deadline. Students see a portal reminder 5 days before the due date.</p>
+    </div>
+</div>
+
+<div class="panel">
+    <div class="panel-head"><h2>Add Assignment</h2></div>
+    <form method="post">
+        <label for="title">Assignment title</label>
+        <input id="title" name="title" type="text" required placeholder="e.g. Computer Networks Assignment 1">
+
+        <label for="course_id">Subject</label>
+        <select id="course_id" name="course_id" required>
+            <option value="">Select subject</option>
+            {% for course in courses %}
+            <option value="{{ course.id }}">{{ course.code }} — {{ course.name }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="due_date">Due date</label>
+        <input id="due_date" name="due_date" type="date" required>
+
+        <label for="description">Instructions (optional)</label>
+        <textarea id="description" name="description" rows="3" placeholder="Any short instructions for students"></textarea>
+
+        <button class="primary button" type="submit">Add Assignment</button>
+    </form>
+</div>
+
+<div class="panel">
+    <div class="panel-head"><h2>Assignments</h2><span class="muted">{{ assignments|length }} total</span></div>
+    {% if assignments %}
+    <table>
+        <thead><tr><th>Assignment</th><th>Subject</th><th>Due date</th><th>Instructions</th><th>Action</th></tr></thead>
+        <tbody>
+        {% for a in assignments %}
+        <tr>
+            <td><b>{{ a.title }}</b></td>
+            <td>{{ a.code }} — {{ a.name }}</td>
+            <td>{{ a.due_date }}</td>
+            <td>{{ a.description or '—' }}</td>
+            <td>
+                <form method="post" action="{{ url_for('delete_assignment', assignment_id=a.id) }}" onsubmit="return confirm('Delete this assignment?');">
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="muted">No assignments added yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

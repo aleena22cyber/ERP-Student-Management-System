@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="login-wrap">
+    <div class="login-card">
+        <div class="logo-box">ERP</div>
+        <h1>Attendance Portal</h1>
+        <p class="muted">Login to continue</p>
+
+        <form method="POST">
+            <label>Username</label>
+            <input type="text" name="username" placeholder="Enrollment No. for students" required>
+
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Enter password" required>
+
+            <button type="submit" class="primary full">Login</button>
+        </form>
+
+        <div class="demo-box">
+            <b>Demo login</b><br>
+            Teacher: <code>teacher1</code> / <code>teacher123</code><br>
+            Student: use any enrollment number from the Excel list / <code>student123</code><br>
+            Example: <code>200601</code> / <code>student123</code>
+        </div>
+    </div>
+</div>
+{% endblock %}
